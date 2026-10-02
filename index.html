@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Offer Floor</title>
+<meta name="description" content="Is this drive-away offer worth taking? A private calculator that keeps all your data on your own phone.">
+<meta name="theme-color" content="#1E3A5A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Offer Floor">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  :root{
+    --ground:#F4F4EF;--surface:#FFFFFF;--surface-2:#EDEDE6;--ink:#191C1A;--ink-2:#5B625D;--ink-3:#7A817B;
+    --rule:#DCDCD3;--accent:#1E3A5A;--accent-ink:#FFFFFF;--accent-soft:#E3E9F0;--go:#1F6B42;--go-soft:#E0EEE6;
+    --warn:#8A5B0E;--warn-soft:#F5EAD7;--stop:#9E2B22;--stop-soft:#F6E3E0;
+    --shadow:0 1px 2px rgba(25,28,26,.06),0 6px 16px rgba(25,28,26,.05);
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#131614;--surface:#1C201D;--surface-2:#252A27;--ink:#ECEEE9;--ink-2:#A4ACA6;--ink-3:#868E88;
+      --rule:#2F3531;--accent:#8FB4DC;--accent-ink:#0F1A24;--accent-soft:#1E2A36;--go:#6CC191;--go-soft:#16301F;
+      --warn:#DCA847;--warn-soft:#332711;--stop:#E58175;--stop-soft:#361A16;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 16px rgba(0,0,0,.3);color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#131614;--surface:#1C201D;--surface-2:#252A27;--ink:#ECEEE9;--ink-2:#A4ACA6;--ink-3:#868E88;
+    --rule:#2F3531;--accent:#8FB4DC;--accent-ink:#0F1A24;--accent-soft:#1E2A36;--go:#6CC191;--go-soft:#16301F;
+    --warn:#DCA847;--warn-soft:#332711;--stop:#E58175;--stop-soft:#361A16;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 16px rgba(0,0,0,.3);color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.5 var(--sans);
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  .wrap{max-width:640px;margin:0 auto;padding:22px 16px 56px;display:flex;flex-direction:column;gap:20px}
+  [hidden]{display:none!important}
+
+  header .eyebrow{font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0}
+  h1{font-size:26px;line-height:1.15;margin:6px 0 0;letter-spacing:-.02em}
+  .lede{margin:8px 0 0;color:var(--ink-2)}
+  h2{font:600 12px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);margin:0 0 12px}
+  .card{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
+
+  nav.tabs{display:flex;gap:4px;background:var(--surface-2);border-radius:10px;padding:4px;position:sticky;top:env(safe-area-inset-top);z-index:5}
+  nav.tabs button{flex:1;border:0;background:transparent;color:var(--ink-2);font:600 13px var(--sans);padding:9px 4px;border-radius:7px;cursor:pointer}
+  nav.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:400px){.grid2{grid-template-columns:1fr}}
+  .full{grid-column:1/-1}
+  .field{display:flex;flex-direction:column;gap:5px;min-width:0}
+  .field label,.lbl{font:600 11px/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+  .hint{font-size:12.5px;color:var(--ink-3);margin:0}
+  .box{display:flex;align-items:center;gap:3px;border:1px solid var(--rule);border-radius:8px;background:var(--surface-2);padding:0 10px}
+  .box span{color:var(--ink-3);font-family:var(--mono);font-size:14px}
+  .box input{width:100%;min-width:0;border:0;background:transparent;color:var(--ink);font:600 18px var(--mono);padding:10px 0}
+  .box input:focus{outline:none}
+  .box:focus-within{outline:2px solid var(--accent);outline-offset:1px}
+  .txt,select{width:100%;border:1px solid var(--rule);border-radius:8px;background:var(--surface-2);color:var(--ink);font:16px var(--sans);padding:10px}
+  select:focus-visible,.txt:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .toggle{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink-2);cursor:pointer;margin-top:12px}
+  .toggle input{width:18px;height:18px;accent-color:var(--accent);flex:none}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:600 13px var(--sans);border:1px solid var(--rule);
+    background:var(--surface-2);color:var(--ink);border-radius:8px;padding:9px 13px;cursor:pointer;text-decoration:none;flex:none}
+  .btn:hover{border-color:var(--ink-3)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .btn.danger{color:var(--stop)}
+  .btn.small{padding:6px 10px;font-size:12px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .spacer{flex:1}
+
+  .verdict{margin-top:14px;border-radius:10px;padding:14px;border:1px solid var(--rule);background:var(--surface-2);display:flex;flex-direction:column;gap:8px}
+  .verdict .call{font:700 19px/1.1 var(--mono);letter-spacing:.04em;text-transform:uppercase}
+  .verdict ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+  .v-go{background:var(--go-soft);border-color:var(--go)} .v-go .call{color:var(--go)}
+  .v-warn{background:var(--warn-soft);border-color:var(--warn)} .v-warn .call{color:var(--warn)}
+  .v-stop{background:var(--stop-soft);border-color:var(--stop)} .v-stop .call{color:var(--stop)}
+
+  .scroller{overflow-x:auto;margin-inline:-16px;padding-inline:16px}
+  table{border-collapse:collapse;width:100%;font-size:14px;min-width:360px}
+  th,td{text-align:right;padding:9px 6px;border-bottom:1px solid var(--rule);white-space:nowrap}
+  th:first-child,td:first-child{text-align:left;white-space:normal;padding-left:0}
+  td:last-child,th:last-child{padding-right:0}
+  thead th{font:600 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);border-bottom:1.5px solid var(--ink-3)}
+  tbody tr:last-child td{border-bottom:0}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .floor-c{color:var(--warn);font-weight:600} .target-c{color:var(--go);font-weight:600}
+
+  .plist{list-style:none;margin:0;padding:0}
+  .plist li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--rule)}
+  .plist li:last-child{border-bottom:0}
+  .plist .meta{flex:1;min-width:0}
+  .plist .meta b{font-weight:600}
+  .plist .meta small{display:block;color:var(--ink-3);font-size:12.5px;overflow-wrap:anywhere}
+  .empty{color:var(--ink-3);font-size:14px;padding:6px 0}
+  .editor{margin-top:14px;padding-top:14px;border-top:1.5px solid var(--ink-3)}
+  .err{color:var(--stop);font-size:13px;margin:8px 0 0}
+  .banner{background:var(--accent-soft);border:1px solid var(--accent);color:var(--ink);border-radius:10px;padding:12px 14px;font-size:14px}
+  .banner b{color:var(--accent)}
+  .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--ground);
+    padding:10px 16px;border-radius:99px;font-size:14px;box-shadow:var(--shadow);z-index:20}
+  .note{font-size:13.5px;color:var(--ink-2)}
+  .note p{margin:0 0 10px} .note p:last-child{margin:0}
+  .note strong{color:var(--ink)}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--surface-2);padding:1px 5px;border-radius:4px;color:var(--ink)}
+  footer{font-size:12px;color:var(--ink-3);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">For drive-away drivers</p>
+    <h1>Is this offer worth it?</h1>
+    <p class="lede">Turns the payout on an offer into a yes or a no, using your own miles to the pickup and the hours the job really costs you.</p>
+  </header>
+
+  <div class="banner" id="welcome" hidden>
+    <b>Start here:</b> set your rates and car in <b>Setup</b>, then add the places you usually pick up from under <b>Pickups</b>.
+    Everything stays on this device &mdash; nothing is sent anywhere.
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" id="tab-check" aria-selected="true" aria-controls="pane-check">Check</button>
+    <button role="tab" id="tab-pickups" aria-selected="false" aria-controls="pane-pickups">Pickups</button>
+    <button role="tab" id="tab-setup" aria-selected="false" aria-controls="pane-setup">Setup</button>
+    <button role="tab" id="tab-about" aria-selected="false" aria-controls="pane-about">About</button>
+  </nav>
+
+  <!-- CHECK -->
+  <section id="pane-check" role="tabpanel" aria-labelledby="tab-check" style="display:flex;flex-direction:column;gap:20px">
+    <div class="card">
+      <h2>Check an offer</h2>
+      <div class="grid2">
+        <div class="field full">
+          <label for="pickup">Pickup</label>
+          <select id="pickup"></select>
+        </div>
+        <div class="field full" id="customMiWrap" hidden>
+          <label for="customMi">Round trip from home</label>
+          <div class="box"><input id="customMi" type="number" inputmode="decimal" min="0" step="0.5" placeholder="0"><span>mi</span></div>
+        </div>
+        <div class="field">
+          <label for="offer">Payout on the offer</label>
+          <div class="box"><span>$</span><input id="offer" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div>
+        </div>
+        <div class="field">
+          <label for="travel">Drive time on the job</label>
+          <div class="box"><input id="travel" type="number" inputmode="decimal" min="0" step="0.25" value="1"><span>hr</span></div>
+        </div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="staged"> My car is already at this pickup (no new miles)</label>
+      <div class="verdict" id="verdict" role="status" aria-live="polite">
+        <div class="call" id="call">Enter an offer</div>
+        <ul id="reasons"></ul>
+      </div>
+    </div>
+
+    <div>
+      <h2>Minimum payout by pickup</h2>
+      <div class="scroller">
+        <table>
+          <thead><tr><th scope="col">Pickup</th><th scope="col">Miles</th><th scope="col">Hours</th><th scope="col">Floor</th><th scope="col">Worth it</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <p class="hint" id="tableHint" style="margin-top:10px"></p>
+    </div>
+  </section>
+
+  <!-- PICKUPS -->
+  <section id="pane-pickups" role="tabpanel" aria-labelledby="tab-pickups" hidden>
+    <div class="card">
+      <div class="row" style="margin-bottom:6px"><h2 style="margin:0">Your pickups</h2><span class="spacer"></span>
+        <button class="btn primary small" id="addBtn" type="button">+ Add pickup</button></div>
+      <p class="hint" style="margin-bottom:8px">Round-trip miles are from home to the pickup and back. Use <b>Maps</b> to look them up once, then they're saved.</p>
+      <ul class="plist" id="plist"></ul>
+
+      <form class="editor" id="editor" hidden novalidate>
+        <h2 id="edTitle">Add pickup</h2>
+        <div class="grid2">
+          <div class="field full"><label for="edName">Name</label><input class="txt" id="edName" maxlength="80" placeholder="e.g. Amazon station, Kent" autocomplete="off"></div>
+          <div class="field full"><label for="edAddr">Address</label><input class="txt" id="edAddr" maxlength="160" placeholder="Street, city" autocomplete="off"></div>
+          <div class="field"><label for="edMi">Round trip from home</label><div class="box"><input id="edMi" type="number" inputmode="decimal" min="0" step="0.5"><span>mi</span></div></div>
+          <div class="field" style="justify-content:flex-end"><a class="btn" id="edMaps" href="#" target="_blank" rel="noopener">Look up in Maps</a></div>
+          <div class="field full"><label for="edNote">Note</label><input class="txt" id="edNote" maxlength="160" placeholder="optional" autocomplete="off"></div>
+        </div>
+        <p class="err" id="edErr" hidden></p>
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" type="submit">Save</button>
+          <button class="btn" type="button" id="edCancel">Cancel</button>
+          <span class="spacer"></span>
+          <button class="btn danger" type="button" id="edDelete" hidden>Delete</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- SETUP -->
+  <section id="pane-setup" role="tabpanel" aria-labelledby="tab-setup" hidden style="display:flex;flex-direction:column;gap:20px">
+    <div class="card">
+      <h2>Your rates</h2>
+      <div class="grid2">
+        <div class="field"><label for="s_floor">Floor &mdash; never below</label><div class="box"><span>$</span><input id="s_floor" type="number" inputmode="decimal" min="0" step="1"><span>/hr</span></div></div>
+        <div class="field"><label for="s_target">Worth the trip</label><div class="box"><span>$</span><input id="s_target" type="number" inputmode="decimal" min="0" step="1"><span>/hr</span></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Your car</h2>
+      <div class="grid2">
+        <div class="field"><label for="s_mpg">Fuel economy</label><div class="box"><input id="s_mpg" type="number" inputmode="decimal" min="1" step="0.1"><span>mpg</span></div></div>
+        <div class="field"><label for="s_gas">Gas price</label><div class="box"><span>$</span><input id="s_gas" type="number" inputmode="decimal" min="0" step="0.01"><span>/gal</span></div></div>
+        <div class="field full"><label for="s_home">Home address</label><input class="txt" id="s_home" maxlength="160" placeholder="Only used to open Maps directions" autocomplete="off">
+          <p class="hint">Stays on this device. Used only to build the Maps link for each pickup.</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Assumptions</h2>
+      <div class="grid2">
+        <div class="field"><label for="s_irs">IRS mileage rate</label><div class="box"><span>$</span><input id="s_irs" type="number" inputmode="decimal" min="0" step="0.005"><span>/mi</span></div>
+          <p class="hint">76&cent; for business miles from July 1, 2026 (72.5&cent; Jan&ndash;Jun).</p></div>
+        <div class="field"><label for="s_mph">Average speed, own car</label><div class="box"><input id="s_mph" type="number" inputmode="decimal" min="5" step="1"><span>mph</span></div></div>
+        <div class="field"><label for="s_overhead">Handoff &amp; waiting</label><div class="box"><input id="s_overhead" type="number" inputmode="decimal" min="0" step="0.25"><span>hr</span></div>
+          <p class="hint">Check-in, paperwork, waiting for the ride back.</p></div>
+        <div class="field"><label for="s_fee">Platform fee (optional)</label><div class="box"><input id="s_fee" type="number" inputmode="decimal" min="0" max="90" step="0.1" placeholder="0"><span>%</span></div>
+          <p class="hint">If the payout shown is after a fee, this shows the job's price before it.</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Backup</h2>
+      <p class="note" style="margin:0 0 12px">Your data lives only in this browser. Save a backup file now and then &mdash; on iPhone, choose <b>Save to Files</b> and put it in iCloud Drive.</p>
+      <div class="row">
+        <button class="btn" id="exportBtn" type="button">Save backup file</button>
+        <label class="btn" for="importFile">Restore from file</label>
+        <input type="file" id="importFile" accept="application/json,.json" hidden>
+        <span class="spacer"></span>
+        <button class="btn danger" id="resetBtn" type="button">Erase all</button>
+      </div>
+      <p class="hint" id="storageNote" style="margin-top:10px"></p>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="pane-about" role="tabpanel" aria-labelledby="tab-about" hidden style="display:flex;flex-direction:column;gap:20px">
+    <div class="card note">
+      <h2>How the numbers work</h2>
+      <p><strong>Hours</strong> = round-trip miles &divide; your average speed + drive time on the job + handoff time.</p>
+      <p><strong>Floor</strong> = your floor rate &times; hours, or the paper break-even (miles &times; IRS rate), whichever is higher. Below it: decline.</p>
+      <p><strong>Worth it</strong> = the same, at your target rate.</p>
+      <p><strong>Gas</strong> = miles &times; gas price &divide; mpg. That's the cash the trip actually costs you, and it is usually far below the IRS rate.</p>
+      <p><strong>Paper break-even:</strong> if you deduct mileage at the standard rate, a job paying less than miles &times; the IRS rate lowers your taxable profit. That isn't a cash loss &mdash; it's a bookkeeping line. The real reason to decline a far, cheap job is usually the hours.</p>
+      <p><strong>Chained jobs:</strong> if your car is already parked at the pickup from an earlier job, tick the box &mdash; the new job costs you time only, no new miles.</p>
+      <p>These are estimates to help you decide, not tax advice.</p>
+    </div>
+    <div class="card note">
+      <h2>Privacy</h2>
+      <p>This is a static page. It has no accounts, no analytics, no ads and no server that receives your data. Your pickups, addresses and rates are stored in this browser on this device only.</p>
+      <p>The only time anything leaves your phone is when <em>you</em> tap <b>Look up in Maps</b>, which opens your maps app with the two addresses.</p>
+      <p><strong>Tip:</strong> on iPhone, tap Share &rarr; <b>Add to Home Screen</b>. It then opens like an app, works offline, and Safari won't clear its data after a week of not visiting.</p>
+    </div>
+  </section>
+
+  <footer>Offer Floor &middot; works offline &middot; your data never leaves this device</footer>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+  "use strict";
+  var KEY = "offerfloor.v1";
+  var DEFAULTS = { floor:20, target:30, mpg:25, gas:4.50, irs:0.76, mph:35, overhead:0.5, fee:0, home:"" };
+  var state = { settings: Object.assign({}, DEFAULTS), pickups: [], ui: { pickup:"", travel:1 } };
+
+  var $ = function(id){ return document.getElementById(id); };
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function money(v){ return "$" + (isFinite(v) ? v : 0).toFixed(2); }
+  function n(v, d){ v = parseFloat(v); return isFinite(v) && v >= 0 ? v : d; }
+  function uid(){ return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+  function toast(msg){ var t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(function(){ t.hidden = true; }, 2200); }
+
+  // ---------- storage ----------
+  var storageOK = true;
+  function load(){
+    try{
+      var raw = localStorage.getItem(KEY);
+      if(raw){ applyData(JSON.parse(raw)); return true; }
+    }catch(e){ storageOK = false; }
+    return false;
+  }
+  function persist(){
+    try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){ storageOK = false; }
+  }
+  function applyData(d){
+    if(!d || typeof d !== "object") throw new Error("bad");
+    var s = Object.assign({}, DEFAULTS);
+    if(d.settings && typeof d.settings === "object"){
+      Object.keys(DEFAULTS).forEach(function(k){
+        if(k === "home"){ if(typeof d.settings.home === "string") s.home = d.settings.home.slice(0,160); }
+        else { var v = parseFloat(d.settings[k]); if(isFinite(v) && v >= 0) s[k] = v; }
+      });
+      if(d.settings.configured) s.configured = true;
+    }
+    var list = [];
+    if(Array.isArray(d.pickups)){
+      d.pickups.forEach(function(p){
+        if(!p || typeof p.name !== "string") return;
+        var mi = parseFloat(p.mi);
+        list.push({ id: typeof p.id === "string" && p.id ? p.id.slice(0,40) : uid(), name: p.name.slice(0,80),
+          addr: typeof p.addr === "string" ? p.addr.slice(0,160) : "", mi: isFinite(mi) && mi >= 0 ? mi : 0,
+          note: typeof p.note === "string" ? p.note.slice(0,160) : "" });
+      });
+    }
+    state.settings = s; state.pickups = list;
+    state.ui = (d.ui && typeof d.ui === "object") ? { pickup: String(d.ui.pickup || ""), travel: n(d.ui.travel, 1) } : { pickup:"", travel:1 };
+  }
+  function sorted(){ return state.pickups.slice().sort(function(a,b){ return (a.mi - b.mi) || a.name.localeCompare(b.name); }); }
+
+  // ---------- math ----------
+  function calc(mi, travel){
+    var s = state.settings, mph = s.mph > 0 ? s.mph : 35;
+    var h = mi / mph + travel + s.overhead, paper = mi * s.irs;
+    return { h:h, paper:paper, floor:Math.max(paper, h * s.floor), target:Math.max(paper, h * s.target),
+      gas: s.mpg > 0 ? mi * s.gas / s.mpg : 0 };
+  }
+
+  // ---------- tabs ----------
+  var TABS = ["check","pickups","setup","about"];
+  function showTab(name){
+    TABS.forEach(function(t){
+      var on = t === name;
+      $("tab-" + t).setAttribute("aria-selected", on ? "true" : "false");
+      $("pane-" + t).hidden = !on;
+    });
+    if(name === "check") renderCheck();
+  }
+  TABS.forEach(function(t){ $("tab-" + t).addEventListener("click", function(){ showTab(t); }); });
+
+  // ---------- check ----------
+  function buildSelect(){
+    var sel = $("pickup"), list = sorted(), html = "";
+    list.forEach(function(p){ html += '<option value="' + esc(p.id) + '">' + esc(p.name) + " (" + p.mi + " mi)</option>"; });
+    html += '<option value="__custom">Somewhere else &mdash; enter miles</option>';
+    sel.innerHTML = html;
+    var want = state.ui.pickup;
+    var ok = want === "__custom" || list.some(function(p){ return p.id === want; });
+    sel.value = ok ? want : (list[0] ? list[0].id : "__custom");
+    $("customMiWrap").hidden = sel.value !== "__custom";
+  }
+  function renderTable(){
+    var list = sorted(), s = state.settings, rows = "";
+    if(!list.length){
+      $("tbody").innerHTML = '<tr><td colspan="5" class="empty">No pickups yet &mdash; add some under Pickups.</td></tr>';
+    } else {
+      list.forEach(function(p){
+        var c = calc(p.mi, 1);
+        rows += "<tr><td><b>" + esc(p.name) + "</b></td><td class=\"num\">" + p.mi + "</td><td class=\"num\">" + c.h.toFixed(1) +
+          "</td><td class=\"num floor-c\">" + money(c.floor) + "</td><td class=\"num target-c\">" + money(c.target) + "</td></tr>";
+      });
+      $("tbody").innerHTML = rows;
+    }
+    $("tableHint").innerHTML = "Assumes 1&nbsp;hr of drive time on the job. Each extra hour adds " + money(s.floor) + " to the floor and " + money(s.target) + " to worth-it.";
+  }
+  function renderVerdict(){
+    var s = state.settings, sel = $("pickup").value, mi;
+    if(sel === "__custom") mi = n($("customMi").value, 0);
+    else { var p = state.pickups.filter(function(x){ return x.id === sel; })[0]; mi = p ? p.mi : 0; }
+    if($("staged").checked) mi = 0;
+    var offerRaw = $("offer").value, offer = n(offerRaw, 0), travel = n($("travel").value, 1);
+    var c = calc(mi, travel), v = $("verdict");
+    if(offerRaw === "" ){
+      v.className = "verdict"; $("call").textContent = "Enter an offer";
+      $("reasons").innerHTML = "<li>Needs " + money(c.floor) + " to clear your floor, " + money(c.target) + " to be worth the trip.</li>";
+      return;
+    }
+    var cls, call;
+    if(offer >= c.target){ cls = "v-go"; call = "Take it"; }
+    else if(offer >= c.floor){ cls = "v-warn"; call = "Marginal — your call"; }
+    else { cls = "v-stop"; call = "Decline"; }
+    var r = [];
+    r.push("<strong>" + money(c.h > 0 ? offer / c.h : 0) + "/hr</strong> over about " + c.h.toFixed(1) + " hours, door to door.");
+    r.push("Needs " + money(c.floor) + " to clear your floor, " + money(c.target) + " to be worth the trip.");
+    if(mi > 0){
+      var cash = offer - c.gas;
+      r.push("Gas for " + mi + " miles is about " + money(c.gas) + ", leaving <strong>" + money(cash) + "</strong> — " + money(c.h > 0 ? cash / c.h : 0) + "/hr after gas.");
+      if(offer < c.paper) r.push("Below the " + money(c.paper) + " paper break-even, so it lowers your taxable profit. In cash it still clears gas — the hours are the real question.");
+    } else {
+      r.push("No new miles on your car — this is purely a time decision.");
+    }
+    if(s.fee > 0 && s.fee < 100) r.push("About " + money(offer / (1 - s.fee / 100)) + " before the " + s.fee + "% platform fee.");
+    v.className = "verdict " + cls; $("call").textContent = call;
+    $("reasons").innerHTML = "<li>" + r.join("</li><li>") + "</li>";
+  }
+  function renderCheck(){ buildSelect(); renderTable(); renderVerdict(); }
+
+  ["offer","travel","customMi","staged","pickup"].forEach(function(id){
+    var h = function(){
+      if(id === "pickup"){ state.ui.pickup = $("pickup").value; $("customMiWrap").hidden = $("pickup").value !== "__custom"; persist(); }
+      if(id === "travel"){ state.ui.travel = n($("travel").value, 1); persist(); }
+      renderVerdict();
+    };
+    $(id).addEventListener("input", h); $(id).addEventListener("change", h);
+  });
+
+  // ---------- pickups ----------
+  var editingId = null;
+  function mapsUrl(addr){
+    var home = state.settings.home.trim();
+    if(!addr) return "";
+    return "https://maps.apple.com/?" + (home ? "saddr=" + encodeURIComponent(home) + "&" : "") + "daddr=" + encodeURIComponent(addr) + "&dirflg=d";
+  }
+  function renderPickups(){
+    var list = sorted(), html = "";
+    if(!list.length) html = '<li class="empty">No pickups yet. Add the places you get jobs from.</li>';
+    list.forEach(function(p){
+      html += '<li><div class="meta"><b>' + esc(p.name) + "</b> &middot; " + p.mi + " mi<small>" + esc([p.addr, p.note].filter(Boolean).join(" · ")) + "</small></div>" +
+        '<button class="btn small" type="button" data-edit="' + esc(p.id) + '">Edit</button></li>';
+    });
+    $("plist").innerHTML = html;
+  }
+  function syncMapsLink(){
+    var url = mapsUrl($("edAddr").value.trim()), a = $("edMaps");
+    if(url){ a.href = url; a.removeAttribute("aria-disabled"); a.style.opacity = ""; }
+    else { a.href = "#"; a.setAttribute("aria-disabled","true"); a.style.opacity = ".5"; }
+  }
+  function openEditor(p){
+    editingId = p ? p.id : null;
+    $("edTitle").textContent = p ? "Edit pickup" : "Add pickup";
+    $("edName").value = p ? p.name : ""; $("edAddr").value = p ? p.addr : "";
+    $("edMi").value = p ? p.mi : ""; $("edNote").value = p ? p.note : "";
+    $("edDelete").hidden = !p; $("edDelete").textContent = "Delete"; delete $("edDelete").dataset.armed;
+    $("edErr").hidden = true; $("editor").hidden = false; syncMapsLink();
+    $("edName").focus();
+  }
+  function closeEditor(){ $("editor").hidden = true; editingId = null; }
+  $("addBtn").addEventListener("click", function(){ openEditor(null); });
+  $("edCancel").addEventListener("click", closeEditor);
+  $("edAddr").addEventListener("input", syncMapsLink);
+  $("edMaps").addEventListener("click", function(e){ if(this.getAttribute("aria-disabled")){ e.preventDefault(); toast("Enter the pickup address first"); } });
+  $("plist").addEventListener("click", function(e){
+    var b = e.target.closest ? e.target.closest("[data-edit]") : null; if(!b) return;
+    var p = state.pickups.filter(function(x){ return x.id === b.getAttribute("data-edit"); })[0];
+    if(p) openEditor(p);
+  });
+  $("editor").addEventListener("submit", function(e){
+    e.preventDefault();
+    var name = $("edName").value.trim(), mi = parseFloat($("edMi").value);
+    if(!name){ $("edErr").textContent = "Give the pickup a name."; $("edErr").hidden = false; return; }
+    if(!isFinite(mi) || mi < 0){ $("edErr").textContent = "Enter the round-trip miles from home (use Maps to look it up)."; $("edErr").hidden = false; return; }
+    var rec = { id: editingId || uid(), name:name, addr:$("edAddr").value.trim(), mi:Math.round(mi * 10) / 10, note:$("edNote").value.trim() };
+    if(editingId) state.pickups = state.pickups.map(function(x){ return x.id === editingId ? rec : x; });
+    else { state.pickups.push(rec); state.ui.pickup = rec.id; }
+    persist(); closeEditor(); renderPickups(); renderCheck(); updateWelcome();
+    toast("Saved");
+  });
+  $("edDelete").addEventListener("click", function(){
+    var b = this;
+    if(b.dataset.armed !== "1"){ b.dataset.armed = "1"; b.textContent = "Tap again to delete"; setTimeout(function(){ delete b.dataset.armed; b.textContent = "Delete"; }, 4000); return; }
+    state.pickups = state.pickups.filter(function(x){ return x.id !== editingId; });
+    persist(); closeEditor(); renderPickups(); renderCheck(); toast("Deleted");
+  });
+
+  // ---------- setup ----------
+  var SFIELDS = { s_floor:"floor", s_target:"target", s_mpg:"mpg", s_gas:"gas", s_irs:"irs", s_mph:"mph", s_overhead:"overhead", s_fee:"fee", s_home:"home" };
+  function fillSetup(){
+    Object.keys(SFIELDS).forEach(function(id){ var k = SFIELDS[id], v = state.settings[k]; $(id).value = (k === "fee" && !v) ? "" : v; });
+  }
+  Object.keys(SFIELDS).forEach(function(id){
+    $(id).addEventListener("input", function(){
+      var k = SFIELDS[id];
+      if(k === "home") state.settings.home = this.value.slice(0,160);
+      else state.settings[k] = n(this.value, k === "fee" ? 0 : DEFAULTS[k]);
+      state.settings.configured = true;
+      persist(); updateWelcome();
+    });
+  });
+
+  // ---------- backup ----------
+  $("exportBtn").addEventListener("click", function(){
+    var data = JSON.stringify({ app:"offer-floor", version:1, saved:new Date().toISOString(), settings:state.settings, pickups:state.pickups, ui:state.ui }, null, 2);
+    var blob = new Blob([data], { type:"application/json" });
+    var name = "offer-floor-backup-" + new Date().toISOString().slice(0,10) + ".json";
+    try{
+      var file = new File([blob], name, { type:"application/json" });
+      if(navigator.canShare && navigator.canShare({ files:[file] }) && /iPhone|iPad|Android/i.test(navigator.userAgent)){
+        navigator.share({ files:[file], title:name }).catch(function(){});
+        return;
+      }
+    }catch(e){}
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  });
+  $("importFile").addEventListener("change", function(){
+    var f = this.files && this.files[0]; if(!f) return;
+    var input = this, rd = new FileReader();
+    rd.onload = function(){
+      try{
+        var d = JSON.parse(rd.result);
+        if(d.app !== "offer-floor") throw new Error("not ours");
+        applyData(d); persist(); fillSetup(); renderPickups(); renderCheck(); updateWelcome();
+        toast("Restored " + state.pickups.length + " pickups");
+      }catch(e){ toast("That file isn't an Offer Floor backup"); }
+      input.value = "";
+    };
+    rd.readAsText(f);
+  });
+  $("resetBtn").addEventListener("click", function(){
+    var b = this;
+    if(b.dataset.armed !== "1"){ b.dataset.armed = "1"; b.textContent = "Tap again to erase everything"; setTimeout(function(){ delete b.dataset.armed; b.textContent = "Erase all"; }, 4000); return; }
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    state = { settings:Object.assign({}, DEFAULTS), pickups:[], ui:{ pickup:"", travel:1 } };
+    fillSetup(); renderPickups(); renderCheck(); updateWelcome();
+    delete b.dataset.armed; b.textContent = "Erase all"; toast("Erased");
+  });
+
+  function updateWelcome(){ $("welcome").hidden = !!(state.pickups.length && state.settings.configured); }
+
+  // ---------- start ----------
+  var had = load();
+  $("travel").value = state.ui.travel;
+  fillSetup(); renderPickups(); renderCheck(); updateWelcome();
+  if(!had && !state.pickups.length) showTab("setup");
+
+  var standalone = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone;
+  $("storageNote").textContent = !storageOK ? "This browser is blocking storage (private mode?) — nothing will be saved."
+    : standalone ? "Running from your Home Screen — data is kept until you erase it."
+    : "Tip: add this page to your Home Screen so the browser doesn't clear it.";
+  if(navigator.storage && navigator.storage.persist){ navigator.storage.persist().catch(function(){}); }
+  if("serviceWorker" in navigator && location.protocol === "https:"){ navigator.serviceWorker.register("sw.js").catch(function(){}); }
+})();
+</script>
+</body>
+</html>
