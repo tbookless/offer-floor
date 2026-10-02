@@ -40,3 +40,9 @@ Upload the changed files to the same repository. Also open `sw.js` and bump `VER
 Offer Floor is a static web page. It has no server-side code, no accounts, no cookies, no analytics and no advertising. Everything you enter is stored in your own browser on your own device and is never sent to the publisher. The only time data leaves the device is when you tap **Look up in Maps**, which opens your maps app with the home and pickup addresses you entered. The hosting provider (GitHub) sees ordinary web-server logs, such as IP addresses, when the page is loaded.
 
 Estimates only — not tax advice.
+
+## License
+
+Copyright (C) 2026 Tod Bookless
+
+Offer Floor is free software, licensed under the GNU Affero General Public License v3.0 (see `LICENSE`). You may use, change and share it, but any modified version you distribute or host for others must also be released under the AGPL with its source code.
