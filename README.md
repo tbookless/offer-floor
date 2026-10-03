@@ -37,7 +37,7 @@ Upload the changed files to the same repository. Also open `sw.js` and bump `VER
 
 ## Privacy statement (for anyone who asks)
 
-Offer Floor is a static web page. It has no server-side code, no accounts, no cookies, no analytics and no advertising. Everything you enter is stored in your own browser on your own device and is never sent to the publisher. The only time data leaves the device is when you tap **Look up in Maps**, which opens your maps app with the home and pickup addresses you entered. The hosting provider (GitHub) sees ordinary web-server logs, such as IP addresses, when the page is loaded.
+Offer Floor is a static web page. It has no server-side code, no accounts, no cookies, no analytics and no advertising. Everything you enter is stored in your own browser on your own device and is never sent to the publisher. The only time data leaves the device is when you tap **Look up in Maps**, which opens Google Maps (on Android) or Apple Maps (on iPhone and everything else) with the home and pickup addresses you entered, so those two addresses go to Google or Apple. The hosting provider (GitHub) sees ordinary web-server logs, such as IP addresses, when the page is loaded.
 
 Estimates only — not tax advice.
 
