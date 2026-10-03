@@ -265,7 +265,7 @@
     <div class="card note">
       <h2>Privacy</h2>
       <p>This is a static page. It has no accounts, no analytics, no ads and no server that receives your data. Your pickups, addresses and rates are stored in this browser on this device only.</p>
-      <p>The only time anything leaves your phone is when <em>you</em> tap <b>Look up in Maps</b>, which opens your maps app with the two addresses.</p>
+      <p>The only time anything leaves your phone is when <em>you</em> tap <b>Look up in Maps</b>, which opens Google Maps (on Android) or Apple Maps (everywhere else) with the two addresses.</p>
       <p><strong>Tip:</strong> on iPhone, tap Share &rarr; <b>Add to Home Screen</b>. It then opens like an app, works offline, and Safari won't clear its data after a week of not visiting.</p>
     </div>
   </section>
@@ -416,6 +416,9 @@
   function mapsUrl(addr){
     var home = state.settings.home.trim();
     if(!addr) return "";
+    if(/Android/i.test(navigator.userAgent)){
+      return "https://www.google.com/maps/dir/?api=1" + (home ? "&origin=" + encodeURIComponent(home) : "") + "&destination=" + encodeURIComponent(addr) + "&travelmode=driving";
+    }
     return "https://maps.apple.com/?" + (home ? "saddr=" + encodeURIComponent(home) + "&" : "") + "daddr=" + encodeURIComponent(addr) + "&dirflg=d";
   }
   function renderPickups(){
