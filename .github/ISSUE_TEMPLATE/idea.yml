@@ -1,0 +1,20 @@
+name: Idea or suggestion
+description: Suggest a feature or a change that would help drivers.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the situation on a job where Offer Floor falls short.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like it to do?
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: Offer Floor stays free, private and on your phone, so ideas that need accounts, servers or tracking are unlikely to be added.
