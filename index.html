@@ -15,7 +15,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
   :root{
-    --ground:#F4F4EF;--surface:#FFFFFF;--surface-2:#EDEDE6;--ink:#191C1A;--ink-2:#5B625D;--ink-3:#7A817B;
+    --ground:#F4F4EF;--surface:#FFFFFF;--surface-2:#EDEDE6;--ink:#191C1A;--ink-2:#5B625D;--ink-3:#636A65;
     --rule:#DCDCD3;--accent:#1E3A5A;--accent-ink:#FFFFFF;--accent-soft:#E3E9F0;--go:#1F6B42;--go-soft:#E0EEE6;
     --warn:#8A5B0E;--warn-soft:#F5EAD7;--stop:#9E2B22;--stop-soft:#F6E3E0;
     --shadow:0 1px 2px rgba(25,28,26,.06),0 6px 16px rgba(25,28,26,.05);
@@ -25,14 +25,14 @@
   }
   @media (prefers-color-scheme:dark){
     :root:not([data-theme="light"]){
-      --ground:#131614;--surface:#1C201D;--surface-2:#252A27;--ink:#ECEEE9;--ink-2:#A4ACA6;--ink-3:#868E88;
+      --ground:#131614;--surface:#1C201D;--surface-2:#252A27;--ink:#ECEEE9;--ink-2:#A4ACA6;--ink-3:#8E9690;
       --rule:#2F3531;--accent:#8FB4DC;--accent-ink:#0F1A24;--accent-soft:#1E2A36;--go:#6CC191;--go-soft:#16301F;
       --warn:#DCA847;--warn-soft:#332711;--stop:#E58175;--stop-soft:#361A16;
       --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 16px rgba(0,0,0,.3);color-scheme:dark;
     }
   }
   :root[data-theme="dark"]{
-    --ground:#131614;--surface:#1C201D;--surface-2:#252A27;--ink:#ECEEE9;--ink-2:#A4ACA6;--ink-3:#868E88;
+    --ground:#131614;--surface:#1C201D;--surface-2:#252A27;--ink:#ECEEE9;--ink-2:#A4ACA6;--ink-3:#8E9690;
     --rule:#2F3531;--accent:#8FB4DC;--accent-ink:#0F1A24;--accent-soft:#1E2A36;--go:#6CC191;--go-soft:#16301F;
     --warn:#DCA847;--warn-soft:#332711;--stop:#E58175;--stop-soft:#361A16;
     --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 16px rgba(0,0,0,.3);color-scheme:dark;
@@ -132,9 +132,9 @@
 
   <nav class="tabs" role="tablist" aria-label="Sections">
     <button role="tab" id="tab-check" aria-selected="true" aria-controls="pane-check">Check</button>
-    <button role="tab" id="tab-pickups" aria-selected="false" aria-controls="pane-pickups">Pickups</button>
-    <button role="tab" id="tab-setup" aria-selected="false" aria-controls="pane-setup">Setup</button>
-    <button role="tab" id="tab-about" aria-selected="false" aria-controls="pane-about">About</button>
+    <button role="tab" id="tab-pickups" aria-selected="false" tabindex="-1" aria-controls="pane-pickups">Pickups</button>
+    <button role="tab" id="tab-setup" aria-selected="false" tabindex="-1" aria-controls="pane-setup">Setup</button>
+    <button role="tab" id="tab-about" aria-selected="false" tabindex="-1" aria-controls="pane-about">About</button>
   </nav>
 
   <!-- CHECK -->
@@ -241,8 +241,8 @@
       <p class="note" style="margin:0 0 12px">Your data lives only in this browser. Save a backup file now and then &mdash; on iPhone, choose <b>Save to Files</b> and put it in iCloud Drive.</p>
       <div class="row">
         <button class="btn" id="exportBtn" type="button">Save backup file</button>
-        <label class="btn" for="importFile">Restore from file</label>
-        <input type="file" id="importFile" accept="application/json,.json" hidden>
+        <button class="btn" id="importBtn" type="button">Restore from file</button>
+        <input type="file" id="importFile" accept="application/json,.json" hidden tabindex="-1" aria-hidden="true">
         <span class="spacer"></span>
         <button class="btn danger" id="resetBtn" type="button">Erase all</button>
       </div>
@@ -339,11 +339,25 @@
     TABS.forEach(function(t){
       var on = t === name;
       $("tab-" + t).setAttribute("aria-selected", on ? "true" : "false");
+      $("tab-" + t).tabIndex = on ? 0 : -1;
       $("pane-" + t).hidden = !on;
     });
     if(name === "check") renderCheck();
   }
   TABS.forEach(function(t){ $("tab-" + t).addEventListener("click", function(){ showTab(t); }); });
+  // Arrow keys, Home and End move between tabs (standard tab keyboard pattern).
+  document.querySelector('nav.tabs').addEventListener("keydown", function(e){
+    var i = TABS.indexOf(e.target.id.replace("tab-", "")), j;
+    if(i < 0) return;
+    if(e.key === "ArrowRight") j = (i + 1) % TABS.length;
+    else if(e.key === "ArrowLeft") j = (i + TABS.length - 1) % TABS.length;
+    else if(e.key === "Home") j = 0;
+    else if(e.key === "End") j = TABS.length - 1;
+    else return;
+    e.preventDefault();
+    showTab(TABS[j]);
+    $("tab-" + TABS[j]).focus();
+  });
 
   // ---------- check ----------
   function buildSelect(){
@@ -502,6 +516,7 @@
     var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
     document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
   });
+  $("importBtn").addEventListener("click", function(){ $("importFile").click(); });
   $("importFile").addEventListener("change", function(){
     var f = this.files && this.files[0]; if(!f) return;
     var input = this, rd = new FileReader();
