@@ -9,12 +9,12 @@ Offer Floor should be usable by every driver, including people who use screen re
 - The verdict ("Take it", "Marginal" or "Decline") is shown in words as well as color, and screen readers announce it when it changes.
 - The page can be zoomed and follows your phone's text size and light or dark setting.
 - Buttons, links and fields show a clear outline when reached with a keyboard.
+- Everything can be used with a keyboard, including **Setup → Restore from file**. In the section tabs (Check, Pickups, Setup, About), the arrow keys, Home and End move between tabs.
+- Text and labels meet the WCAG AA contrast ratio of 4.5:1 in both light and dark mode.
 
 ## Known limitations
 
-- In light mode, some small grey labels and hints have lower contrast than recommended (about 3.6:1 instead of 4.5:1).
-- **Setup → Restore from file** can't currently be reached with the keyboard alone.
-- The section tabs (Check, Pickups, Setup, About) don't yet support moving between them with the arrow keys. Tab and Enter work.
+None known right now. If you find one, please tell me.
 
 ## Reporting a barrier
 
