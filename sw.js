@@ -1,6 +1,6 @@
 // Offer Floor service worker: caches the app so it opens offline.
 // Bump VERSION whenever you change any file, so phones pick up the update.
-const VERSION = "offer-floor-v2";
+const VERSION = "offer-floor-v3";
 const FILES = ["./", "index.html", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
