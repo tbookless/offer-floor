@@ -1,0 +1,37 @@
+name: Bug report
+description: Something in Offer Floor isn't working right.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this. Issues are public, so please **don't include your home address, pickup addresses or pay details**.
+        Found a security or privacy problem? Please use the **Security** tab to report it privately instead.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Phone and browser
+      placeholder: e.g. iPhone 15, Safari / Pixel 8, Chrome
+    validations:
+      required: true
+  - type: dropdown
+    id: installed
+    attributes:
+      label: How do you open the app?
+      options:
+        - From the home-screen icon
+        - In the browser
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Screenshots help. Cover up any addresses first.
